@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" />
+  <meta name="viewport" content="width=device-width, minimum-scale=0.1" />
+  <title>图片欣赏 _ Gamersky.com</title>
+  <style>
+  html {margin:0;overflow:hidden;}
+  html.cur {overflow:auto;}
+  body {margin:0;background:#0c0c0c;}
+  #PicShow {margin:auto;display:block;-webkit-user-select:none;}
+  #PicShow.loading {width:50px; height:50px; position:absolute; left:50%; top:50%; margin:-25px 0 0 -25px;}
+  #PicShow.click.cor {cursor:zoom-in; cursor:url(//image.gamersky.com/webimg15/user/club/pc/cursor-b.cur),auto\9;}
+  #PicShow.click.cur {cursor:zoom-out;cursor:url(//image.gamersky.com/webimg15/user/club/pc/cursor-s.cur),auto\9;}
+  </style>
+</head>
+<body>
+
+<img id="PicShow" class="loading" src="//image.gamersky.com/webimg15/loading.gif" />
+
+<script src="//j.gamersky.com/g/jquery-1.8.3.js"></script>
+<script>
+(function($) {
+  var $PicShow = $("#PicShow"),img = new Image(),imgW = 0,imgH = 0;
+  var src = location.search.substring(1);
+  src = src.replace("/small_","/origin_");
+
+  img.onload = function(){
+    $PicShow.attr("src", src).toggleClass("loading cor");
+    imgW = img.width;
+    imgH = img.height;
+    $(window).resize(imgsize).trigger("resize");
+  };
+  img.src = src;
+
+  $(document).on("click", ".click", function(e) {
+    var $this = $(this),e = e || window.event;
+    var ww = $(window).width(),hh = $(window).height();
+    if (!$this.hasClass("cur")) {
+      var offsetX = e.pageX - $this.offset().left;
+      var offsetY = e.pageY - $this.offset().top;
+      $this.toggleClass("cor cur").removeAttr("style");
+      $("html").addClass("cur");
+      $("html,body").scrollTop(offsetY).scrollLeft(offsetX);
+    } else {
+      $this.toggleClass("cor cur").width(ww).height(hh);
+      $("html").removeClass("cur");
+      imgsize();
+    }
+  });
+
+  function imgsize() {
+    var picW = 0,picH = 0;
+    var winW = $(window).width();
+    var winH = $(window).height();
+    var is = (imgW / imgH).toFixed(2);
+    var ws = (winW / winH).toFixed(2);
+
+    if ($PicShow.hasClass("cur")) {
+      return;
+    }
+
+    if (imgW <= winW && imgH <= winH) {
+      picW = imgW;
+      picH = imgH;
+      $PicShow.removeClass("click");
+    } else {
+      picH = ws <= is ? parseInt(winW / is) : winH;
+      picW = ws <= is ? winW : parseInt(winH * is);
+      $PicShow.addClass("click");
+    }
+
+    $PicShow.width(picW).height(picH);
+    var T = parseInt(($(window).height() - $PicShow.height()) / 2);
+    $PicShow.css("marginTop", T <= 0 ? 0 : T);
+  }
+})(jQuery);
+</script>
+
+</body>
+</html>
