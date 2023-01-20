@@ -15,8 +15,14 @@ class GameMap extends AcGameObject
 	}
 	update()
 	{
-
+	this.y+=this.vy;
+	this.x+=this.vx;
+	this.render();
 	}
-
+	render(){//渲染
+	this.ctx.fillStyle="rgba(0,0,0,0.2)";	
+	this.ctx.fillRect(0,0,this.ctx.canvas.width,this.ctx.canvas.height);
+		
+	}
 
 }
