@@ -63,6 +63,7 @@ class FireBall extends AcGameObject
 	{
 		let angle=Math.atan2(player.y-this.y,player.x-this.x);
 		player.is_attacked(angle,this.damage);
+		this.destroy();
 	}
 	render()
 	{
@@ -70,5 +71,6 @@ class FireBall extends AcGameObject
 		this.ctx.arc(this.x,this.y,this.radius,0,Math.PI *2,false);
 		this.ctx.fillStyle=this.color;
 		this.ctx.fill();
+	
 	}
 }
