@@ -1,3 +1,62 @@
+class Settings
+{
+	constructor(root)
+	{
+		this.root=root;
+		this.platform="WEB";
+		if(this.AcWingOS)platform="ACAPP";
+		
+		this.start();
+	}
+	start()
+	{
+		this.getinfo();
+	}
+	register()
+	{
+
+	}
+	login(){
+
+	}
+
+	getinfo()
+	{
+		let outer=this;
+		$.ajax({
+
+			url:"https://app4576.acapp.acwing.com.cn/settings/getinfo/",
+		type:"GET",
+		data:{
+			platform:outer.platform,
+
+			},
+		success:function(resp){//调用成功
+		console.log(resp);
+			if(resp.result ==="success")
+			{
+				//登陆成功
+				//隐藏菜单
+				outer.hide();
+				outer.root.menu.show();
+			}else//失败
+			{
+				outer.login();//d登陆界面
+			}
+		}
+	
+
+		});
+	}
+	hide()
+	{
+
+	}
+	show()
+	{
+
+	}
+}
 class AcGameMenu {
     constructor(root) {
         this.root = root;
@@ -18,6 +77,7 @@ class AcGameMenu {
     </div>
 </div>
 `);
+	this.$menu.hide();
 	this.root.$ac_game.append(this.$menu);
         this.$single_mode = this.$menu.find('.ac-game-menu-field-item-single-mode');
         this.$multi_mode = this.$menu.find('.ac-game-menu-field-item-multi-mode');
@@ -477,10 +537,12 @@ class AcGamePlayground{
 
 }
 export class AcGame{
- constructor(id){
+ constructor(id,AcWingOS){
   this.id=id;
 	this.$ac_game=$('#'+id);
-	 this.menu =new AcGameMenu(this);
+	 this.AcWingOS=AcWingOS;//如果是在acwing 云端打开的网站，传递接口//判断哪个平台执行
+	this.settings=new Settings(this);
+	 this.menu=new AcGameMenu(this);
 	this.playground=new AcGamePlayground(this);
 	 this.start();
 
