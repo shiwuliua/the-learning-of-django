@@ -1,62 +1,3 @@
-class Settings
-{
-	constructor(root)
-	{
-		this.root=root;
-		this.platform="WEB";
-		if(this.AcWingOS)platform="ACAPP";
-		
-		this.start();
-	}
-	start()
-	{
-		this.getinfo();
-	}
-	register()
-	{
-
-	}
-	login(){
-
-	}
-
-	getinfo()
-	{
-		let outer=this;
-		$.ajax({
-
-			url:"https://app4576.acapp.acwing.com.cn/settings/getinfo/",
-		type:"GET",
-		data:{
-			platform:outer.platform,
-
-			},
-		success:function(resp){//调用成功
-		console.log(resp);
-			if(resp.result ==="success")
-			{
-				//登陆成功
-				//隐藏菜单
-				outer.hide();
-				outer.root.menu.show();
-			}else//失败
-			{
-				outer.login();//d登陆界面
-			}
-		}
-	
-
-		});
-	}
-	hide()
-	{
-
-	}
-	show()
-	{
-
-	}
-}
 class AcGameMenu {
     constructor(root) {
         this.root = root;
@@ -261,6 +202,12 @@ class Player extends AcGameObject
 		this.eps=1;
 		this.cur_skill=null;//表示选哪个技能	
 		this.spent_time=0;
+		if(this.is_me)
+		{
+			this.img=new Image();
+			this.img.src="图片地址";
+			this.img.src=this.playground.root.settings.photo;
+		}
 	}
 	start(){
 		if(this.is_me)
@@ -404,10 +351,24 @@ class Player extends AcGameObject
 	}
 	render()
 	{
-		this.ctx.beginPath();
-		this.ctx.arc(this.x,this.y,this.radius,0,Math.PI*2,false);
-		this.ctx.fillStyle =this.color;
-		this.ctx.fill();
+		//let scale=this.playground.scale;
+		if(this.is_me)
+		{
+			this.ctx.save();
+			this.ctx.beginPath();
+			this.ctx.arc(this.x,this.y,this.radius,0,Math.PI*2,false);
+			this.ctx.stroke();
+			this.ctx.clip();
+			this.ctx.drawImage(this.img,this.x-this.radius,this.y-this.radius,this.radius*2,this.radius*2);
+			this.ctx.restore();
+
+		}else 
+		{
+			this.ctx.beginPath();
+			this.ctx.arc(this.x,this.y,this.radius,0,Math.PI*2,false);
+			this.ctx.fillStyle =this.color;
+			this.ctx.fill();
+		}
 	}
 	on_destroy()
 	{
@@ -535,6 +496,76 @@ class AcGamePlayground{
 		this.$playground.hide();
 	}
 
+}
+class Settings
+{
+	constructor(root)
+	{
+		this.root=root;
+		this.platform="WEB";
+		if(this.root.AcWingOS)this.platform="ACAPP";
+		this.username="";
+		this.photo="";
+		this.$settings = $(`<div class="ac-game-settings"></div>`);
+		this.root.$ac_game.append(this.$settings);
+		this.start();
+	}
+	start()
+	{
+		this.getinfo();
+	}
+	register()
+	{
+
+	}
+	login(){
+
+	}
+
+	getinfo()
+	{
+		let outer=this;
+		$.ajax({
+
+			url:"https://app4576.acapp.acwing.com.cn/settings/getinfo/",
+		type:"GET",
+		data:{
+			platform:outer.platform,
+
+			},
+		success:function(resp){//调用成功
+		console.log(resp);
+			if(resp.result ==="success")
+			{
+				outer.username=resp.username;
+				outer.photo=resp.photo;
+				
+
+				//登陆成功
+				//隐藏菜单
+				outer.hide();
+				outer.root.menu.show();
+			}else//失败
+			{
+				console.log("test");
+				//outer.root.settings.show();
+			//	outer.show();
+				outer.login();//d登陆界面
+			}
+		}
+	
+
+		});
+	}
+	hide()
+	{
+		this.$settings.hide();
+		
+	}
+	show()
+	{
+		this.$settings.show();
+	}
 }
 export class AcGame{
  constructor(id,AcWingOS){

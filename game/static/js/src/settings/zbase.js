@@ -4,14 +4,10 @@ class Settings
 	{
 		this.root=root;
 		this.platform="WEB";
-		if(this.AcWingOS)platform="ACAPP";
+		if(this.root.AcWingOS)this.platform="ACAPP";
 		this.username="";
-		this.photo=" ";
-		this.$settings = $(`
-<div class ="ac-game-settings">
-</div>
-
-		`);
+		this.photo="";
+		this.$settings = $(`<div class="ac-game-settings"></div>`);
 		this.root.$ac_game.append(this.$settings);
 		this.start();
 	}
@@ -52,7 +48,9 @@ class Settings
 				outer.root.menu.show();
 			}else//失败
 			{
-				outer.show();
+				console.log("test");
+				//outer.root.settings.show();
+			//	outer.show();
 				outer.login();//d登陆界面
 			}
 		}
