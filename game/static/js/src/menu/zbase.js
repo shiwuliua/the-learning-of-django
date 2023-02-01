@@ -9,9 +9,9 @@ class AcGameMenu {
         </div>
         <br>
         <div class="ac-game-menu-field-item ac-game-menu-field-item-multi-mode">
-            多人模式
+            多人大乱斗模式
         </div>
-        <br>
+	<br>
         <div class="ac-game-menu-field-item ac-game-menu-field-item-settings">
             退出
         </div>
@@ -39,7 +39,9 @@ class AcGameMenu {
 		console.log("click multi_mode:");
 	});
 	this.$settings.click(function(){
+
 		console.log("click settings:");
+		outer.root.settings.logout_on_remote();
 	});
     	}
 
