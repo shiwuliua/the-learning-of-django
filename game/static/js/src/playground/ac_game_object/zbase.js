@@ -13,7 +13,7 @@ class AcGameObject
 	update(){//每一帧会执行一次
 
 	}
-	on_destory(){//删除该物品
+	on_destory(){//删除该物
 	}
 	destroy(){//删掉该物体
 		this.on_destory();

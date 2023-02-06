@@ -158,5 +158,12 @@
  background-color:grey;
  user-select:none;
 
-}	
+}
+.ac-game-playground>canvas{/*剧中设定*/
+	position:relative;
+	top:50%;
+	left:50%;
+	transform:translate(-59%,-50%);
+
+}
                                                                                                                                                                                                                          

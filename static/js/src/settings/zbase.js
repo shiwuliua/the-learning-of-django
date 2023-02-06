@@ -215,7 +215,7 @@ class Settings
 			//ag console.log 全文搜索
 			if(resp.result==="success")
 			{
-				location:reload();//刷新页面 注册成功直接登陆
+				location.reload();//刷新页面 注册成功直接登陆
 			}else
 			{
 				outer.$register_error_message.html(resp.result);
