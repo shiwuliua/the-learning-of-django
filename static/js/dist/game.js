@@ -33,9 +33,11 @@ class AcGameMenu {
 		let outer=this;
 		this.$single_mode.click(function(){
 			outer.hide();
-			outer.root.playground.show();					
+			outer.root.playground.show("single mode");					
 	});
 	this.$multi_mode.click(function(){
+		outer.hide();
+		outer.root.playground.show("multi mode");
 		console.log("click multi_mode:");
 	});
 	this.$settings.click(function(){
@@ -63,7 +65,18 @@ class AcGameObject
 	{
 		AC_GAME_OBJECTS.push(this);
 		this.has_called_start =false;//是否调用start函数
-		this.timedelta = 0;//当前距离上一帧的时间间隔 
+		this.timedelta = 0;//当前距离上一帧的时间间隔 i
+		this.uuid=this.create_id();
+	}
+	create_id(){//多人模式下的唯一id
+
+		let res="";
+		for(let i=0;i<8;i++){
+			let x=parseInt(Math.floor(Math.random()*10));//返回【0,1)之间的数字			
+			res+=x;
+
+		}
+		return res;
 	}
 	start(){//只会在一帧执行一次
 
@@ -159,7 +172,7 @@ class Particle extends AcGameObject
 		this.friction=0.95;
 		this.move_length=move_length;
 		this.ctx=this.playground.game_map.ctx;
-		this.eps=1;
+		this.eps=0.01;
 	}	
 	start()
 	{
@@ -194,7 +207,7 @@ class Particle extends AcGameObject
 }
 class Player extends AcGameObject
 {
-	constructor(playground,x,y,radius,color,speed,is_me){//is_me 判断是否为自己
+	constructor(playground,x,y,radius,color,speed,character,username,photo){//is_me 判断是否为自己
 		super();
 		this.playground=playground;
 		this.ctx=this.playground.game_map.ctx;
@@ -210,19 +223,22 @@ class Player extends AcGameObject
 		this.radius=radius;
 		this.color=color;
 		this.speed=speed;
-		this.is_me=is_me;
+		this.character=character;
 		this.eps=0.01;
 		this.cur_skill=null;//表示选哪个技能	
 		this.spent_time=0;
-		if(this.is_me)
+		this.username=username;
+		this.photo=photo;
+		
+		if(this.character!=="robot")
 		{
 			this.img=new Image();
-			this.img.src="图片地址";
-			this.img.src=this.playground.root.settings.photo;
+			this.img.src=this.photo;
+			//this.img.src=this.playground.root.settings.photo;
 		}
 	}
 	start(){
-		if(this.is_me)
+		if(this.character==="me")
 		{
 			this.add_listening_events();
 		}else
@@ -327,7 +343,7 @@ class Player extends AcGameObject
 	update_move()//更新玩家移动
 	{
 		this.spent_time+=this.timedelta/1000;
-		if(Math.random()<1/180.0 && this.spent_time>5&&!this.is_me)
+		if(Math.random()<1/180.0 && this.spent_time>5&&this.character==="robot")
 		{
 			let player=this.playground.players[Math.floor(Math.random()*this.playground.players.length)];
 			let tx=player.x +player.speed * this.vx *this.timedelta /1000 *0.3;
@@ -346,7 +362,7 @@ class Player extends AcGameObject
 			{
 				this.move_length=0;
 				this.vx=this.vy=0;
-				if(!this.is_me)
+				if(this.character==="robot")
 				{
 					let tx=Math.random() * this.playground.width/this.playground.scale;
 					let ty=Math.random() * this.playground.height/this.playground.scale;
@@ -364,7 +380,7 @@ class Player extends AcGameObject
 	render()
 	{
 		let scale=this.playground.scale;
-		if(this.is_me)
+		if(this.character!=="robot")
 		{
 			this.ctx.save();
 			this.ctx.beginPath();
@@ -464,6 +480,43 @@ class FireBall extends AcGameObject {
     }
 }
 
+class MultiPlayerSocket{
+
+	constructor(playground){
+	this.playground=playground;
+	this.ws=new WebSocket("wss://app4576.acapp.acwing.com.cn/wss/multiplayer/");//建立多人模式的 wss连接请求
+	this.start();
+	
+ }
+	start()
+	{
+		console.log("test");
+	this.receive();
+	}
+	//从前端接受wws协议
+	receive(){
+
+		console.log("test1");
+
+		this.ws.onmessage=function(e)
+		{
+			let data=JSON.parse(e.data);//将json变成字典
+			console.log(data);
+		};
+	}
+	send_create_player(username,photo)//创建成功向后端发送json
+	{
+		let outer=this;
+		this.ws.send(JSON.stringify({
+			'event':"create player",
+			'uuid':outer.uuid,
+			'username':username,
+			'photo':photo,
+
+		}));
+	}
+
+}
 class AcGamePlayground{
 	constructor(root)
 	{
@@ -500,18 +553,31 @@ class AcGamePlayground{
 		this.scale=this.height;//调整窗口大小可以变化，相对位置不发生变化
 		if(this.game_map)this.game_map.resize();//地图动态
 	}
-	show()
+	show(mode)
 	{
+		let outer=this;
 		this.$playground.show();
 		this.resize();
 		this.width=this.$playground.width();
 		this.height=this.$playground.height();
 		this.game_map =new GameMap(this);
+		this.resize();
 		this.players=[];
-		this.players.push(new Player(this,this.width/2/this.scale,0.5,0.05,"white",0.15,true));
-		for(let i=0;i<5;i++)
-		{	
-			this.players.push(new Player(this,this.width/2/this.scale,0.5, 0.05,this.get_random_color(), 0.15,false));	
+		this.players.push(new Player(this,this.width/2/this.scale,0.5,0.05,"white",0.15,"me",this.root.settings.username,this.root.settings.photo));
+		if(mode==="single mode"){
+			for(let i=0;i<5;i++)
+			{	
+				this.players.push(new Player(this,this.width/2/this.scale,0.5, 0.05,this.get_random_color(), 0.15,"robot"));	
+			}
+		}else if(mode==="multi mode")
+		{
+			this.mps=new MultiPlayerSocket(this);//创建远程连接
+			this.mps.uuid=this.players[0].uuid;
+			this.mps.ws.onopen=function(){
+
+			outer.mps.send_create_player(outer.root.settings.username,outer.root.settings.photo);
+			};//链接创建成功后回调open函数
+			
 		}
 	}
 	hide()

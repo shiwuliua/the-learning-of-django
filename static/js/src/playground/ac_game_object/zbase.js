@@ -5,7 +5,18 @@ class AcGameObject
 	{
 		AC_GAME_OBJECTS.push(this);
 		this.has_called_start =false;//是否调用start函数
-		this.timedelta = 0;//当前距离上一帧的时间间隔 
+		this.timedelta = 0;//当前距离上一帧的时间间隔 i
+		this.uuid=this.create_id();
+	}
+	create_id(){//多人模式下的唯一id
+
+		let res="";
+		for(let i=0;i<8;i++){
+			let x=parseInt(Math.floor(Math.random()*10));//返回【0,1)之间的数字			
+			res+=x;
+
+		}
+		return res;
 	}
 	start(){//只会在一帧执行一次
 

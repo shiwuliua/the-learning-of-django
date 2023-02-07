@@ -14,7 +14,7 @@ class Particle extends AcGameObject
 		this.friction=0.95;
 		this.move_length=move_length;
 		this.ctx=this.playground.game_map.ctx;
-		this.eps=1;
+		this.eps=0.01;
 	}	
 	start()
 	{
